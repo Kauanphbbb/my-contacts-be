@@ -1,3 +1,4 @@
+const isValidUUID = require('../../utils/isValidUUID');
 const CategoryRepository = require('../repositories/CategoryRepository');
 
 class CategoryController {
@@ -40,9 +41,15 @@ class CategoryController {
       return response.status(400).json({ error: 'name is required' });
     }
 
+    if (!isValidUUID(id)) {
+      return response.status(400).json({ error: 'invalid category id' });
+    }
+
     const nameAlreadyInUse = await CategoryRepository.findByName(name);
 
-    if (nameAlreadyInUse) return response.status(404).json({ error: 'name already in use' });
+    if (nameAlreadyInUse) {
+      return response.status(404).json({ error: 'name already in use' });
+    }
 
     const updatedCategory = await CategoryRepository.update(id, { name });
 
@@ -51,6 +58,10 @@ class CategoryController {
 
   async delete(request, response) {
     const { id } = request.params;
+    if (!isValidUUID(id)) {
+      return response.status(400).json({ error: 'invalid category id' });
+    }
+
     await CategoryRepository.delete(id);
     response.sendStatus(204);
   }
